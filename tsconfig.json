@@ -16,6 +16,14 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@app/core-catalog": [
+        "libs/core-catalog/src"
+      ],
+      "@app/core-catalog/*": [
+        "libs/core-catalog/src/*"
+      ]
+    }
   }
 }
