@@ -5,7 +5,7 @@ import {
   BusinessDomainEntity,
   SkillEntity,
 } from "./entities";
-import { EntityRepository } from "@mikro-orm/postgresql";
+import { EntityManager, EntityRepository } from "@mikro-orm/postgresql";
 import { Filter, serialize } from "@mikro-orm/core";
 
 @Injectable()
@@ -17,6 +17,7 @@ export class CoreCatalogService {
     private skillRepository: EntityRepository<SkillEntity>,
     @InjectRepository(AssessmentTypeEntity)
     private assessmentTypeRepository: EntityRepository<AssessmentTypeEntity>,
+    private em: EntityManager,
   ) {}
 
   public async getAllBusinessDomains() {
@@ -30,7 +31,8 @@ export class CoreCatalogService {
   }
 
   public async getBusinessDomain(code: string) {
-    const domains = await this.businessDomainRepository.findOne(
+    const domains = await this.em.findOne(
+      BusinessDomainEntity,
       {
         businessDomainCode: code,
       },
@@ -40,6 +42,6 @@ export class CoreCatalogService {
       },
     );
     if (!domains) throw new NotFoundException("Domain not found");
-    return serialize(domains, { exclude: ["idBusinessDomain"] });
+    return serialize(domains, { exclude: ["idBusinessDomain"] });]
   }
 }
