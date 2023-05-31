@@ -10,9 +10,14 @@ import {
   SkillEntity,
 } from "./entities";
 import { EntityManager, EntityRepository } from "@mikro-orm/postgresql";
-import { Filter, serialize } from "@mikro-orm/core";
-import { CreateBusinessDomainInput } from "./dto/input";
-import { ExposedBusinessDomain } from "./dto/args";
+import { serialize } from "@mikro-orm/core";
+import {
+  CreateBusinessDomainInput,
+  CreateSkillInput,
+  UpdateBusinessDomainInput,
+  UpdateSkillInput,
+} from "./dto/input";
+import { ExposedBusinessDomain, ExposedSkill } from "./dto/args";
 
 @Injectable()
 export class CoreCatalogService {
@@ -71,6 +76,148 @@ export class CoreCatalogService {
         businessDomainName: input.businessDomainName,
         isActive: input.isActive,
       };
+    } catch (err) {
+      throw new BadRequestException(err?.message, err);
+    }
+  }
+
+  public async updateBusinessDomain(
+    input: UpdateBusinessDomainInput,
+    code: string,
+  ): Promise<ExposedBusinessDomain> {
+    try {
+      const businessDomain = await this.businessDomainRepository.findOne({
+        businessDomainCode: code,
+      });
+      businessDomain.businessDomainName = input.businessDomainName;
+      businessDomain.isActive = input.isActive;
+      businessDomain.updatedDate = new Date();
+      await this.em.persistAndFlush(businessDomain);
+      return serialize(businessDomain, {
+        exclude: [
+          "createdBy",
+          "createdDate",
+          "updatedBy",
+          "updatedDate",
+          "idBusinessDomain",
+        ],
+      });
+      // return {
+      //   businessDomainCode: code,
+      //   businessDomainName: input.businessDomainName,
+      //   isActive: input.isActive,
+      // };
+    } catch (err) {
+      throw new BadRequestException(err?.message, err);
+    }
+  }
+
+  public async getSkills(code: string) {
+    const businessDomain = await this.businessDomainRepository.findOne({
+      businessDomainCode: code,
+    });
+
+    if (!businessDomain) {
+      throw new NotFoundException("Business domain does not exist");
+    }
+
+    const skills = await this.skillRepository.find(
+      {
+        refIdBusinessDomain: businessDomain.idBusinessDomain,
+      },
+      {
+        fields: ["skillCode", "skillName", "isActive"],
+      },
+    );
+    return serialize(skills, { exclude: ["idSkill"] });
+  }
+
+  public async getSkill(code: string, skillCode: string) {
+    const businessDomain = await this.businessDomainRepository.findOne({
+      businessDomainCode: code,
+    });
+
+    if (!businessDomain) {
+      throw new NotFoundException("Business domain does not exist");
+    }
+
+    const skills = await this.skillRepository.findOne(
+      {
+        refIdBusinessDomain: businessDomain.idBusinessDomain,
+        skillCode,
+      },
+      {
+        fields: ["skillCode", "skillName", "isActive"],
+      },
+    );
+    return serialize(skills, { exclude: ["idSkill"] });
+  }
+
+  public async createSkill(
+    input: CreateSkillInput,
+    code: string,
+  ): Promise<ExposedSkill> {
+    try {
+      const businessDomain = await this.businessDomainRepository.findOne({
+        businessDomainCode: code,
+      });
+
+      if (!businessDomain) {
+        throw new NotFoundException("Business domain does not exist");
+      }
+      const skillCode = input.skillName
+        .toLowerCase()
+        .trim()
+        .replace(/\ /gi, "_");
+      const skill = this.skillRepository.create({
+        skillCode,
+        skillName: input.skillName,
+        createdDate: new Date(),
+        isActive: input.isActive,
+        refIdBusinessDomain: businessDomain.idBusinessDomain,
+      });
+      await this.em.persistAndFlush(skill);
+      return {
+        skillCode,
+        skillName: input.skillName,
+        isActive: input.isActive,
+      };
+    } catch (err) {
+      throw new BadRequestException(err?.message, err);
+    }
+  }
+
+  public async updateSkill(
+    input: UpdateSkillInput,
+    code: string,
+    skillCode: string,
+  ): Promise<ExposedSkill> {
+    try {
+      const businessDomain = await this.businessDomainRepository.findOne({
+        businessDomainCode: code,
+      });
+
+      if (!businessDomain) {
+        throw new NotFoundException("Business domain does not exist");
+      }
+
+      const skill = await this.skillRepository.findOne({
+        skillCode: skillCode,
+      });
+      skill.skillName = input.skillName;
+      skill.isActive = input.isActive;
+      skill.updatedDate = new Date();
+      await this.em.persistAndFlush(skill);
+      return serialize(skill, {
+        exclude: [
+          "createdBy",
+          "createdDate",
+          "updatedBy",
+          "updatedDate",
+          "refIdBusinessDomain",
+          "idSkill",
+        ],
+      });
     } catch (err) {
       throw new BadRequestException(err?.message, err);
     }

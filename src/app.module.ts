@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
-import { MikroOrmModule, MikroOrmOptionsFactory } from "@mikro-orm/nestjs";
+import { MikroOrmModule } from "@mikro-orm/nestjs";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { PostgreSqlDriver } from "@mikro-orm/postgresql";
 import { entities } from "./mikro-orm.config";
