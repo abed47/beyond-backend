@@ -1,5 +1,9 @@
 import { InjectRepository } from "@mikro-orm/nestjs";
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import {
   AssessmentTypeEntity,
   BusinessDomainEntity,
@@ -7,6 +11,8 @@ import {
 } from "./entities";
 import { EntityManager, EntityRepository } from "@mikro-orm/postgresql";
 import { Filter, serialize } from "@mikro-orm/core";
+import { CreateBusinessDomainInput } from "./dto/input";
+import { ExposedBusinessDomain } from "./dto/args";
 
 @Injectable()
 export class CoreCatalogService {
@@ -42,6 +48,31 @@ export class CoreCatalogService {
       },
     );
     if (!domains) throw new NotFoundException("Domain not found");
-    return serialize(domains, { exclude: ["idBusinessDomain"] });]
+    return serialize(domains, { exclude: ["idBusinessDomain"] });
+  }
+
+  public async createBusinessDomain(
+    input: CreateBusinessDomainInput,
+  ): Promise<ExposedBusinessDomain> {
+    try {
+      const code = input.businessDomainName
+        .toLowerCase()
+        .trim()
+        .replace(/\ /gi, "_");
+      const businessDomain = this.businessDomainRepository.create({
+        businessDomainCode: code,
+        businessDomainName: input.businessDomainName,
+        createdDate: new Date(),
+        isActive: input.isActive,
+      });
+      await this.em.persistAndFlush(businessDomain);
+      return {
+        businessDomainCode: code,
+        businessDomainName: input.businessDomainName,
+        isActive: input.isActive,
+      };
+    } catch (err) {
+      throw new BadRequestException(err?.message, err);
+    }
   }
 }
