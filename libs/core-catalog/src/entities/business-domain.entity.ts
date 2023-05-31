@@ -1,9 +1,10 @@
 import { BaseEntity } from "@app/common/entities";
-import { Entity, Property } from "@mikro-orm/core";
+import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
 
 @Entity({ tableName: "business_domain" })
 export class BusinessDomainEntity extends BaseEntity {
-  @Property({ autoincrement: true, primary: true, type: "integer" })
+  // @Property({ type: "integer" })
+  @PrimaryKey({ autoincrement: true })
   idBusinessDomain: number;
 
   @Property({ type: "varchar" })

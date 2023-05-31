@@ -1,11 +1,12 @@
 import { InjectRepository } from "@mikro-orm/nestjs";
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import {
   AssessmentTypeEntity,
   BusinessDomainEntity,
   SkillEntity,
 } from "./entities";
 import { EntityRepository } from "@mikro-orm/postgresql";
+import { Filter, serialize } from "@mikro-orm/core";
 
 @Injectable()
 export class CoreCatalogService {
@@ -19,7 +20,26 @@ export class CoreCatalogService {
   ) {}
 
   public async getAllBusinessDomains() {
-    const domains = await this.businessDomainRepository.find({});
-    return domains;
+    const domains = await this.businessDomainRepository.find(
+      {},
+      {
+        fields: ["businessDomainCode", "businessDomainName", "isActive"],
+      },
+    );
+    return serialize(domains, { exclude: ["idBusinessDomain"] });
+  }
+
+  public async getBusinessDomain(code: string) {
+    const domains = await this.businessDomainRepository.findOne(
+      {
+        businessDomainCode: code,
+      },
+      {
+        fields: ["businessDomainCode", "businessDomainName", "isActive"],
+        disableIdentityMap: true,
+      },
+    );
+    if (!domains) throw new NotFoundException("Domain not found");
+    return serialize(domains, { exclude: ["idBusinessDomain"] });
   }
 }
