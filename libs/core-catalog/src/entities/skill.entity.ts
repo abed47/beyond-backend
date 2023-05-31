@@ -1,7 +1,8 @@
+import { BaseEntity } from "@app/common/entities";
 import { Entity, Property } from "@mikro-orm/core";
 
 @Entity({ tableName: "skill" })
-export class SkillEntity {
+export class SkillEntity extends BaseEntity {
   @Property({ primary: true, autoincrement: true, type: "integer" })
   idSkill: number;
 

@@ -1,7 +1,8 @@
+import { BaseEntity } from "@app/common/entities";
 import { Entity, Property } from "@mikro-orm/core";
 
 @Entity({ tableName: "business_domain" })
-export class BusinessDomainEntity {
+export class BusinessDomainEntity extends BaseEntity {
   @Property({ autoincrement: true, primary: true, type: "integer" })
   idBusinessDomain: number;
 

@@ -1,7 +1,8 @@
+import { BaseEntity } from "@app/common/entities";
 import { Entity, Property } from "@mikro-orm/core";
 
 @Entity({ tableName: "assessment_type" })
-export class AssessmentTypeEntity {
+export class AssessmentTypeEntity extends BaseEntity {
   @Property({ primary: true, type: "integer", autoincrement: true })
   idAssessmentType: number;
 
