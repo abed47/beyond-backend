@@ -1,8 +1,10 @@
 import { Body, Controller, Get, Param, Post, Put } from "@nestjs/common";
 import { CoreCatalogService } from "./core-catalog.service";
 import {
+  CreateAssessmentTypeInput,
   CreateBusinessDomainInput,
   CreateSkillInput,
+  UpdateAssessmentTypeInput,
   UpdateBusinessDomainInput,
   UpdateSkillInput,
 } from "./dto/input";
@@ -62,5 +64,35 @@ export class CoreCatalogController {
     @Param("skill_code") skillCode: string,
   ) {
     return this.catalogService.updateSkill(body, code, skillCode);
+  }
+
+  @Get(":code/assessment-types")
+  async getAssessmentTypes(@Param("code") code: string) {
+    return this.catalogService.getAssessmentTypes(code);
+  }
+
+  @Get(":code/assessment-types/:type_code")
+  async getAssessmentType(
+    @Param("code") code: string,
+    @Param("type_code") skillCode: string,
+  ) {
+    return this.catalogService.getAssessmentType(code, skillCode);
+  }
+
+  @Post(":code/assessment-types")
+  async createAssessmentType(
+    @Body() body: CreateAssessmentTypeInput,
+    @Param("code") code: string,
+  ) {
+    return this.catalogService.createAssessmentType(body, code);
+  }
+
+  @Put(":code/assessment-types/:type_code")
+  async updateAssessmentType(
+    @Body() body: UpdateAssessmentTypeInput,
+    @Param("code") code: string,
+    @Param("type_code") skillCode: string,
+  ) {
+    return this.catalogService.updateAssessmentType(body, code, skillCode);
   }
 }

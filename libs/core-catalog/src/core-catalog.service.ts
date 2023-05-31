@@ -12,12 +12,18 @@ import {
 import { EntityManager, EntityRepository } from "@mikro-orm/postgresql";
 import { serialize } from "@mikro-orm/core";
 import {
+  CreateAssessmentTypeInput,
   CreateBusinessDomainInput,
   CreateSkillInput,
+  UpdateAssessmentTypeInput,
   UpdateBusinessDomainInput,
   UpdateSkillInput,
 } from "./dto/input";
-import { ExposedBusinessDomain, ExposedSkill } from "./dto/args";
+import {
+  ExposedAssessmentType,
+  ExposedBusinessDomain,
+  ExposedSkill,
+} from "./dto/args";
 
 @Injectable()
 export class CoreCatalogService {
@@ -216,6 +222,121 @@ export class CoreCatalogService {
           "updatedDate",
           "refIdBusinessDomain",
           "idSkill",
+        ],
+      });
+    } catch (err) {
+      throw new BadRequestException(err?.message, err);
+    }
+  }
+
+  public async getAssessmentTypes(code: string) {
+    const businessDomain = await this.businessDomainRepository.findOne({
+      businessDomainCode: code,
+    });
+
+    if (!businessDomain) {
+      throw new NotFoundException("Business domain does not exist");
+    }
+
+    const assessmentTypes = await this.assessmentTypeRepository.find(
+      {
+        refIdBusinessDomain: businessDomain.idBusinessDomain,
+      },
+      {
+        fields: ["assessmentTypeName", "assessmentTypeCode", "isActive"],
+      },
+    );
+    return serialize(assessmentTypes, { exclude: ["idAssessmentType"] });
+  }
+
+  public async getAssessmentType(code: string, typeCode: string) {
+    const businessDomain = await this.businessDomainRepository.findOne({
+      businessDomainCode: code,
+    });
+
+    if (!businessDomain) {
+      throw new NotFoundException("Business domain does not exist");
+    }
+
+    const assessmentType = await this.assessmentTypeRepository.findOne(
+      {
+        refIdBusinessDomain: businessDomain.idBusinessDomain,
+        assessmentTypeCode: typeCode,
+      },
+      {
+        fields: ["assessmentTypeName", "assessmentTypeCode", "isActive"],
+      },
+    );
+
+    if (!assessmentType) {
+      throw new NotFoundException("Type does not exist");
+    }
+    return serialize(assessmentType, { exclude: ["idAssessmentType"] });
+  }
+
+  public async createAssessmentType(
+    input: CreateAssessmentTypeInput,
+    code: string,
+  ): Promise<ExposedAssessmentType> {
+    try {
+      const businessDomain = await this.businessDomainRepository.findOne({
+        businessDomainCode: code,
+      });
+
+      if (!businessDomain) {
+        throw new NotFoundException("Business domain does not exist");
+      }
+      const typeCode = input.assessmentTypeName
+        .toLowerCase()
+        .trim()
+        .replace(/\ /gi, "_");
+      const assessmentType = this.assessmentTypeRepository.create({
+        assessmentTypeCode: typeCode,
+        assessmentTypeName: input.assessmentTypeName,
+        createdDate: new Date(),
+        isActive: input.isActive,
+        refIdBusinessDomain: businessDomain.idBusinessDomain,
+      });
+      await this.em.persistAndFlush(assessmentType);
+      return {
+        assessmentTypeCode: typeCode,
+        assessmentTypeName: input.assessmentTypeName,
+        isActive: input.isActive,
+      };
+    } catch (err) {
+      throw new BadRequestException(err?.message, err);
+    }
+  }
+
+  public async updateAssessmentType(
+    input: UpdateAssessmentTypeInput,
+    code: string,
+    typeCode: string,
+  ): Promise<ExposedAssessmentType> {
+    try {
+      const businessDomain = await this.businessDomainRepository.findOne({
+        businessDomainCode: code,
+      });
+
+      if (!businessDomain) {
+        throw new NotFoundException("Business domain does not exist");
+      }
+
+      const assessmentType = await this.assessmentTypeRepository.findOne({
+        assessmentTypeCode: typeCode,
+      });
+      assessmentType.assessmentTypeName = input.assessmentTypeName;
+      assessmentType.isActive = input.isActive;
+      assessmentType.updatedDate = new Date();
+      await this.em.persistAndFlush(assessmentType);
+      return serialize(assessmentType, {
+        exclude: [
+          "createdBy",
+          "createdDate",
+          "updatedBy",
+          "updatedDate",
+          "refIdBusinessDomain",
+          "idAssessmentType",
         ],
       });
     } catch (err) {
