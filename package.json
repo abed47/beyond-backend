@@ -79,7 +79,8 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
-      "^@app/core-catalog(|/.*)$": "<rootDir>/libs/core-catalog/src/$1"
+      "^@app/core-catalog(|/.*)$": "<rootDir>/libs/core-catalog/src/$1",
+      "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1"
     }
   }
 }

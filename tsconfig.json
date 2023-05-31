@@ -23,6 +23,12 @@
       ],
       "@app/core-catalog/*": [
         "libs/core-catalog/src/*"
+      ],
+      "@app/common": [
+        "libs/common/src"
+      ],
+      "@app/common/*": [
+        "libs/common/src/*"
       ]
     }
   }
