@@ -44,7 +44,8 @@ export class CoreCatalogService {
         fields: ["businessDomainCode", "businessDomainName", "isActive"],
       },
     );
-    return serialize(domains, { exclude: ["idBusinessDomain"] });
+    // return serialize(domains, { exclude: ["idBusinessDomain"] });
+    return domains;
   }
 
   public async getBusinessDomain(code: string) {
@@ -59,7 +60,8 @@ export class CoreCatalogService {
       },
     );
     if (!domains) throw new NotFoundException("Domain not found");
-    return serialize(domains, { exclude: ["idBusinessDomain"] });
+    // return serialize(domains, { exclude: ["idBusinessDomain"] });
+    return domains;
   }
 
   public async createBusinessDomain(
@@ -92,27 +94,28 @@ export class CoreCatalogService {
     code: string,
   ): Promise<ExposedBusinessDomain> {
     try {
-      const businessDomain = await this.businessDomainRepository.findOne({
-        businessDomainCode: code,
-      });
+      const businessDomain = await this.businessDomainRepository.findOne(
+        {
+          businessDomainCode: code,
+        },
+        {
+          fields: ["businessDomainName", "businessDomainCode", "isActive"],
+        },
+      );
       businessDomain.businessDomainName = input.businessDomainName;
       businessDomain.isActive = input.isActive;
       businessDomain.updatedDate = new Date();
       await this.em.persistAndFlush(businessDomain);
-      return serialize(businessDomain, {
-        exclude: [
-          "createdBy",
-          "createdDate",
-          "updatedBy",
-          "updatedDate",
-          "idBusinessDomain",
-        ],
-      });
-      // return {
-      //   businessDomainCode: code,
-      //   businessDomainName: input.businessDomainName,
-      //   isActive: input.isActive,
-      // };
+      return businessDomain;
+      // return serialize(businessDomain, {
+      //   exclude: [
+      //     "createdBy",
+      //     "createdDate",
+      //     "updatedBy",
+      //     "updatedDate",
+      //     "idBusinessDomain",
+      //   ],
+      // });
     } catch (err) {
       throw new BadRequestException(err?.message, err);
     }
@@ -135,7 +138,8 @@ export class CoreCatalogService {
         fields: ["skillCode", "skillName", "isActive"],
       },
     );
-    return serialize(skills, { exclude: ["idSkill"] });
+    // return serialize(skills, { exclude: ["idSkill"] });
+    return skills;
   }
 
   public async getSkill(code: string, skillCode: string) {
@@ -156,7 +160,8 @@ export class CoreCatalogService {
         fields: ["skillCode", "skillName", "isActive"],
       },
     );
-    return serialize(skills, { exclude: ["idSkill"] });
+    // return serialize(skills, { exclude: ["idSkill"] });
+    return skills;
   }
 
   public async createSkill(
@@ -207,23 +212,29 @@ export class CoreCatalogService {
         throw new NotFoundException("Business domain does not exist");
       }
 
-      const skill = await this.skillRepository.findOne({
-        skillCode: skillCode,
-      });
+      const skill = await this.skillRepository.findOne(
+        {
+          skillCode: skillCode,
+        },
+        {
+          fields: ["skillCode", "skillName", "isActive"],
+        },
+      );
       skill.skillName = input.skillName;
       skill.isActive = input.isActive;
       skill.updatedDate = new Date();
       await this.em.persistAndFlush(skill);
-      return serialize(skill, {
-        exclude: [
-          "createdBy",
-          "createdDate",
-          "updatedBy",
-          "updatedDate",
-          "refIdBusinessDomain",
-          "idSkill",
-        ],
-      });
+      // return serialize(skill, {
+      //   exclude: [
+      //     "createdBy",
+      //     "createdDate",
+      //     "updatedBy",
+      //     "updatedDate",
+      //     "refIdBusinessDomain",
+      //     "idSkill",
+      //   ],
+      // });
+      return skill;
     } catch (err) {
       throw new BadRequestException(err?.message, err);
     }
@@ -246,7 +257,8 @@ export class CoreCatalogService {
         fields: ["assessmentTypeName", "assessmentTypeCode", "isActive"],
       },
     );
-    return serialize(assessmentTypes, { exclude: ["idAssessmentType"] });
+    // return serialize(assessmentTypes, { exclude: ["idAssessmentType"] });
+    return assessmentTypes;
   }
 
   public async getAssessmentType(code: string, typeCode: string) {
@@ -271,7 +283,8 @@ export class CoreCatalogService {
     if (!assessmentType) {
       throw new NotFoundException("Type does not exist");
     }
-    return serialize(assessmentType, { exclude: ["idAssessmentType"] });
+    // return serialize(assessmentType, { exclude: ["idAssessmentType"] });
+    return assessmentType;
   }
 
   public async createAssessmentType(
@@ -322,23 +335,29 @@ export class CoreCatalogService {
         throw new NotFoundException("Business domain does not exist");
       }
 
-      const assessmentType = await this.assessmentTypeRepository.findOne({
-        assessmentTypeCode: typeCode,
-      });
+      const assessmentType = await this.assessmentTypeRepository.findOne(
+        {
+          assessmentTypeCode: typeCode,
+        },
+        {
+          fields: ["assessmentTypeName", "assessmentTypeCode", "isActive"],
+        },
+      );
       assessmentType.assessmentTypeName = input.assessmentTypeName;
       assessmentType.isActive = input.isActive;
       assessmentType.updatedDate = new Date();
       await this.em.persistAndFlush(assessmentType);
-      return serialize(assessmentType, {
-        exclude: [
-          "createdBy",
-          "createdDate",
-          "updatedBy",
-          "updatedDate",
-          "refIdBusinessDomain",
-          "idAssessmentType",
-        ],
-      });
+      // return serialize(assessmentType, {
+      //   exclude: [
+      //     "createdBy",
+      //     "createdDate",
+      //     "updatedBy",
+      //     "updatedDate",
+      //     "refIdBusinessDomain",
+      //     "idAssessmentType",
+      //   ],
+      // });
+      return assessmentType;
     } catch (err) {
       throw new BadRequestException(err?.message, err);
     }

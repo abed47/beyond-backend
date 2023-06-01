@@ -1,5 +1,6 @@
 import { BaseEntity } from "@app/common/entities";
 import { Entity, Property } from "@mikro-orm/core";
+import { Exclude } from "class-transformer";
 
 @Entity({ tableName: "skill" })
 export class SkillEntity extends BaseEntity {

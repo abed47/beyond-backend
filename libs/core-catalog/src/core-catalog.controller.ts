@@ -8,7 +8,10 @@ import {
   UpdateBusinessDomainInput,
   UpdateSkillInput,
 } from "./dto/input";
+import { ExposedBusinessDomain, ExposedSkill } from "./dto/args";
+import { ApiTags } from "@nestjs/swagger";
 
+@ApiTags("Core Catalog")
 @Controller("business-domains")
 export class CoreCatalogController {
   constructor(private catalogService: CoreCatalogService) {}
@@ -19,7 +22,9 @@ export class CoreCatalogController {
   }
 
   @Get(":code")
-  async getBusinessDomain(@Param("code") code: string) {
+  async getBusinessDomain(
+    @Param("code") code: string,
+  ): Promise<ExposedBusinessDomain> {
     return this.catalogService.getBusinessDomain(code);
   }
 
@@ -37,7 +42,7 @@ export class CoreCatalogController {
   }
 
   @Get(":code/skills")
-  async getSkills(@Param("code") code: string) {
+  async getSkills(@Param("code") code: string): Promise<ExposedSkill[]> {
     return this.catalogService.getSkills(code);
   }
 
